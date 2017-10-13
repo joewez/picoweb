@@ -14,10 +14,12 @@ def get_mime_type(fname):
     # Provide minimal detection of important file
     # types to keep browsers happy
     if fname.endswith(".html"):
-        return "text/html"
+        return "text/html", False
     if fname.endswith(".css"):
-        return "text/css"
-    return "text/plain"
+        return "text/css", True
+    if fname.endswith(".js"):
+        return "text/javascript", True
+    return "text/plain", False
 
 def sendstream(writer, f):
     buf = bytearray(64)
@@ -33,10 +35,12 @@ def jsonify(writer, dict):
     yield from start_response(writer, "application/json")
     yield from writer.awrite(ujson.dumps(dict))
 
-def start_response(writer, content_type="text/html", status="200"):
+def start_response(writer, content_type="text/html", status="200", cacheable=False):
     yield from writer.awrite("HTTP/1.0 %s NA\r\n" % status)
     yield from writer.awrite("Content-Type: ")
     yield from writer.awrite(content_type)
+    if cacheable:
+    	yield from writer.awrite("\r\nCache-Control: max-age=86400")
     yield from writer.awrite("\r\n\r\n")
 
 def http_error(writer, status):
@@ -202,10 +206,10 @@ class WebApp:
 
     def sendfile(self, writer, fname, content_type=None):
         if not content_type:
-            content_type = get_mime_type(fname)
+            content_type, cacheable = get_mime_type(fname)
         try:
             with pkg_resources.resource_stream(self.pkg, fname) as f:
-                yield from start_response(writer, content_type)
+                yield from start_response(writer, content_type, "200", cacheable)
                 yield from sendstream(writer, f)
         except OSError as e:
             if e.args[0] == uerrno.ENOENT:
