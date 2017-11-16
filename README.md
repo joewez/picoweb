@@ -1,3 +1,6 @@
+Changes:
+  Now certain types of files are defined as cacheable.
+
 Intro
 =====
 picoweb is a "micro" web micro-framework (thus, "pico-framework") for
