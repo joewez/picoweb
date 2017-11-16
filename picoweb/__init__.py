@@ -19,6 +19,12 @@ def get_mime_type(fname):
         return "text/css", True
     if fname.endswith(".js"):
         return "text/javascript", True
+    if fname.endswith(".png"):
+        return "image/png", True
+    if fname.endswith(".gif"):
+        return "image/gif", True
+    if fname.endswith(".jpeg") or fname.endswith(".jpg"):
+        return "image/jpeg", True
     return "text/plain", False
 
 def sendstream(writer, f):
