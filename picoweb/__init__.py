@@ -100,7 +100,8 @@ class WebApp:
         # TODO: bytes vs str
         request_line = request_line.decode()
         method, path, proto = request_line.split()
-        print('%.3f %s %s "%s %s"' % (utime.time(), req, writer, method, path))
+        if self.debug:
+            print('%.3f %s %s "%s %s"' % (utime.time(), req, writer, method, path))
         path = path.split("?", 1)
         qs = ""
         if len(path) > 1:
